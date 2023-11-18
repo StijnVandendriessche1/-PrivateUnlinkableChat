@@ -5,11 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cd18ca78-5f50-456c-ad7b-629c94f28812" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/interfaces/BulletinBoard.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../chatClientGui/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../chatClientGui/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/server/ChatServer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/server/classes/Message.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Main.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,6 +18,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Interface" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -77,7 +76,7 @@
       <option name="presentableId" value="Default" />
       <updated>1700316499795</updated>
       <workItem from="1700316500827" duration="6000" />
-      <workItem from="1700326198188" duration="1536000" />
+      <workItem from="1700326198188" duration="4895000" />
     </task>
     <servers />
   </component>
