@@ -2,6 +2,7 @@ package interfaces;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.security.NoSuchAlgorithmException;
 
 public interface BulletinBoard extends Remote
 {
@@ -17,5 +18,5 @@ public interface BulletinBoard extends Remote
      * @param t the tag of the message
      * @return the value of the message
      */
-    String get(int i, String t) throws RemoteException;
+    String get(int i, String b) throws RemoteException, NoSuchAlgorithmException;
 }

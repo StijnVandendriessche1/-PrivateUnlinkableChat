@@ -5,9 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cd18ca78-5f50-456c-ad7b-629c94f28812" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/consolClient/Client.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/server/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/ChatServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/ChatServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/classes/Message.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/BulletinBoard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/BulletinBoard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/ChatServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/BulletinBoardImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,13 +49,39 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RunManager" selected="Application.ChatServer">
-    <configuration name="ChatServer" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="server.ChatServer" />
+  <component name="RunManager" selected="Application.Client (1)">
+    <configuration name="BulletinBoardImpl" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="server.BulletinBoardImpl" />
       <module name="chatServer" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="server.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Client (1)" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="consolClient.Client" />
+      <module name="chatServer" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="consolClient.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Client" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="consolClient.Client" />
+      <module name="chatServer" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="consolClient.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -74,10 +102,32 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="server.Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="server.Main" />
+      <module name="chatServer" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="server.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.Client (1)" />
+      <item itemvalue="Application.BulletinBoardImpl" />
+      <item itemvalue="Application.Client" />
+      <item itemvalue="Application.Main" />
+      <item itemvalue="Application.server.Main" />
+    </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.ChatServer" />
+        <item itemvalue="Application.BulletinBoardImpl" />
+        <item itemvalue="Application.server.Main" />
         <item itemvalue="Application.Main" />
+        <item itemvalue="Application.Client" />
       </list>
     </recent_temporary>
   </component>
@@ -91,7 +141,8 @@
       <updated>1700316499795</updated>
       <workItem from="1700316500827" duration="6000" />
       <workItem from="1700326198188" duration="4895000" />
-      <workItem from="1700390890321" duration="2161000" />
+      <workItem from="1700390890321" duration="2230000" />
+      <workItem from="1700399380455" duration="10184000" />
     </task>
     <servers />
   </component>
