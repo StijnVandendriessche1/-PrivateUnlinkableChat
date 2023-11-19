@@ -6,8 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="cd18ca78-5f50-456c-ad7b-629c94f28812" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/consolClient/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/consolClient/Client.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/BulletinBoardImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/BulletinBoardImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/BulletinBoard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/BulletinBoard.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -140,7 +139,7 @@
       <workItem from="1700316500827" duration="6000" />
       <workItem from="1700326198188" duration="4895000" />
       <workItem from="1700390890321" duration="2230000" />
-      <workItem from="1700399380455" duration="12423000" />
+      <workItem from="1700399380455" duration="12547000" />
     </task>
     <servers />
   </component>

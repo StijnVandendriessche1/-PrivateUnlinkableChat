@@ -15,7 +15,7 @@ public interface BulletinBoard extends Remote
 
     /**
      * @param i the index of the cell that a message should be read from, can be any, since modulo is used to determine the index
-     * @param t the tag of the message
+     * @param b the tag of the message
      * @return the value of the message
      */
     String get(int i, String b) throws RemoteException, NoSuchAlgorithmException;
