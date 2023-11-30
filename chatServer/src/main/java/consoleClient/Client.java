@@ -23,7 +23,7 @@ public class Client
     private static BulletinBoard server;
     private ArrayList<String> ownTags = new ArrayList<>();
 
-    public static void main(String[] args) throws MalformedURLException, NotBoundException, RemoteException, NoSuchAlgorithmException, FileNotFoundException {
+    public static void main(String[] args) throws MalformedURLException, NotBoundException, RemoteException, NoSuchAlgorithmException, FileNotFoundException, InterruptedException {
         //setup client
         Client client = new Client();
         client.initialize(); //simulate touch by reading values from file
@@ -33,7 +33,7 @@ public class Client
         client.run();
 
         //random tests
-        /*
+        //
         //send 25 random messages (hello world1-25)
         for (int i = 0; i < 25; i++)
             client.send("Hello World" + (i + 1));
@@ -42,8 +42,8 @@ public class Client
         client.initialize();
 
         //receive 25 messages
-        System.out.println(client.receiveAll());
-         */
+        System.out.println(client.receive());
+
     }
 
     private void send(String message) throws NoSuchAlgorithmException, RemoteException
@@ -98,10 +98,9 @@ public class Client
     }
 
     public void initialize() throws FileNotFoundException {
-        //read id and tag from file
-        Scanner scanner = new Scanner(new File("src/consoleClient/initval"));
-        id = scanner.nextInt();
-        tag = scanner.next();
+        //todo read id and tag from file
+        this.id = 9771448;
+        this.tag = "be58ba9a-4a97-41c8-9b5c-2fb11b14122b";
     }
 
     //TODO make this not overload the server
