@@ -23,6 +23,29 @@ public class Client
     private static BulletinBoard server;
     private ArrayList<String> ownTags = new ArrayList<>();
 
+    public static void main(String[] args) throws MalformedURLException, NotBoundException, RemoteException, NoSuchAlgorithmException, FileNotFoundException {
+        //setup client
+        Client client = new Client();
+        client.initialize(); //simulate touch by reading values from file
+        client.md = MessageDigest.getInstance("SHA-512");
+        myRegistry = LocateRegistry.getRegistry("localhost", 1099);
+        server = (BulletinBoard) myRegistry.lookup("ChatService");
+        client.run();
+
+        //random tests
+        /*
+        //send 25 random messages (hello world1-25)
+        for (int i = 0; i < 25; i++)
+            client.send("Hello World" + (i + 1));
+
+        //reset id and tag to initial values
+        client.initialize();
+
+        //receive 25 messages
+        System.out.println(client.receiveAll());
+         */
+    }
+
     private void send(String message) throws NoSuchAlgorithmException, RemoteException
     {
         //create new index and tag
@@ -46,8 +69,7 @@ public class Client
         tag = newTag;
     }
 
-    private String receive() throws NoSuchAlgorithmException, RemoteException
-    {
+    private String receive() throws NoSuchAlgorithmException, RemoteException, InterruptedException {
         String u = null;
         //get message from bulletin board (optionally null)
         if(!ownTags.contains(tag))
@@ -66,7 +88,7 @@ public class Client
         return split[0];
     }
 
-    private ArrayList<String> receiveAll() throws NoSuchAlgorithmException, RemoteException {
+    private ArrayList<String> receiveAll() throws NoSuchAlgorithmException, RemoteException, InterruptedException {
         ArrayList<String> out = new ArrayList<>();
         String received;
         while ((received = receive()) != null) {
@@ -94,12 +116,7 @@ public class Client
                     String message = receive();
                     if(message != null)
                         System.out.println(message);
-                } catch (NoSuchAlgorithmException | RemoteException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
+                } catch (NoSuchAlgorithmException | RemoteException | InterruptedException e) {
                     e.printStackTrace();
                 }
             }
@@ -114,28 +131,6 @@ public class Client
         {
             send(scanner.nextLine());
         }
-    }
-    public static void main(String[] args) throws MalformedURLException, NotBoundException, RemoteException, NoSuchAlgorithmException, FileNotFoundException {
-        //setup client
-        Client client = new Client();
-        client.initialize(); //simulate touch by reading values from file
-        client.md = MessageDigest.getInstance("SHA-512");
-        myRegistry = LocateRegistry.getRegistry("localhost", 1099);
-        server = (BulletinBoard) myRegistry.lookup("ChatService");
-        client.run();
-
-        //random tests
-        /*
-        //send 25 random messages (hello world1-25)
-        for (int i = 0; i < 25; i++)
-            client.send("Hello World" + (i + 1));
-
-        //reset id and tag to initial values
-        client.initialize();
-
-        //receive 25 messages
-        System.out.println(client.receiveAll());
-         */
     }
 
     private static String getHexString(byte[] bytes)

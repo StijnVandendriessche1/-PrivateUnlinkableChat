@@ -18,5 +18,5 @@ public interface BulletinBoard extends Remote
      * @param b the tag of the message
      * @return the value of the message
      */
-    String get(int i, String b) throws RemoteException, NoSuchAlgorithmException;
+    String get(int i, String b) throws RemoteException, NoSuchAlgorithmException, InterruptedException;
 }

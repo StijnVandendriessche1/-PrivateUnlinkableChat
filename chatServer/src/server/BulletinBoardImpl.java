@@ -22,11 +22,12 @@ public class BulletinBoardImpl extends UnicastRemoteObject implements interfaces
     public void add(int i, String v, String t) throws RemoteException
     {
         BulletinBoardImpl.cells[i % n].put(t, v);
+        notifyAll();
     }
 
     @Override
-    public String get(int i, String b) throws RemoteException, NoSuchAlgorithmException
-    {
+    public String get(int i, String b) throws RemoteException, NoSuchAlgorithmException, InterruptedException {
+        wait();
         MessageDigest md = MessageDigest.getInstance("SHA-512");
         md.update(b.getBytes());
         String t = getHexString(md.digest());
