@@ -1,4 +1,4 @@
-package server;
+package src.main.java.server;
 
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
