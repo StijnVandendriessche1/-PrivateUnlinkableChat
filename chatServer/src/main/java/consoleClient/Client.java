@@ -35,6 +35,11 @@ public class Client
         client.md = MessageDigest.getInstance("SHA-512");
         myRegistry = LocateRegistry.getRegistry("localhost", 1099);
         server = (BulletinBoard) myRegistry.lookup("ChatService");
+
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES"); //create key generator for AES
+        keyGenerator.init(256); //make sure 256 key is used
+        client.key = keyGenerator.generateKey(); //create secret
+
         //client.run();
 
         //random tests
@@ -159,9 +164,6 @@ public class Client
         //todo read id and tag from file
         this.id = 9771448;
         this.tag = "be58ba9a-4a97-41c8-9b5c-2fb11b14122b"; // uuid
-        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES"); //create key generator for AES
-        keyGenerator.init(256); //make sure 256 key is used
-        key = keyGenerator.generateKey(); //create secret
     }
 
     //TODO make this not overload the server
