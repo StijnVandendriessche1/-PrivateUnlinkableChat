@@ -24,26 +24,28 @@ public class Client
     private MessageDigest md;
     private static Registry myRegistry;
     private static BulletinBoard server;
-    private ArrayList<String> ownTags = new ArrayList<>();
-    SecretKey key;
+    private String nextTag;
+    private SecretKey key;
 
     public static void main(String[] args) throws MalformedURLException, NotBoundException, RemoteException, NoSuchAlgorithmException, FileNotFoundException, InterruptedException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
         //setup client
         Client client = new Client();
         client.initialize(); //simulate touch by reading values from file
+        //todo add salt to hash as expansion?
         client.md = MessageDigest.getInstance("SHA-512");
         myRegistry = LocateRegistry.getRegistry("localhost", 1099);
         server = (BulletinBoard) myRegistry.lookup("ChatService");
-        client.run();
+        //client.run();
 
         //random tests
         //
         //send 25 random messages (hello world1-25)
-        for (int i = 0; i < 25; i++)
-            client.send("Hello World" + (i + 1));
+        client.send("Hallo dit is een test");
 
         //reset id and tag to initial values
         client.initialize();
+
+        System.out.println(client.receive()); //receive 1 message
 
         //receive 25 messages
         new Thread(new Runnable() {
@@ -70,7 +72,6 @@ public class Client
 
         //add message to bulletin board
         server.add(id, ciphertext, tagHash);
-        ownTags.add(tag);
 
         //update id and tag
         id = newIndex;
@@ -78,38 +79,56 @@ public class Client
     }
 
     private byte[] encrypt(String u) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
-        //todo implement encryption
+        // Create an instance of the Cipher class
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 
-        //create instance of cipher
-        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding"); //create instance of cipher using mode CBC and padding PKCS#5
+        // Initialize the cipher for encryption
+        cipher.init(Cipher.ENCRYPT_MODE, key);
 
-        //encryption
-        cipher.init(Cipher.ENCRYPT_MODE, key); //make sure the key is used in the cipher
-        byte[] cipherText = cipher.doFinal(u.getBytes()); //encrypteer de text
+        // Encrypt the text
+        byte[] cipherText = cipher.doFinal(u.getBytes());
 
-        //decryption
-        byte[] initializationVector = cipher.getIV(); //initial state of decryption (needed for aes)
-        cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(initializationVector));
-        byte[] decryptedText = cipher.doFinal(cipherText);
+        // Get the initialization vector
+        byte[] initializationVector = cipher.getIV();
 
-        //output
-        System.out.println("origineel: " + u);
-        System.out.println("encrypted: " + getHexString(cipherText));
-        System.out.println("decrypted: " + new String(decryptedText));
-        return cipherText;
+        // Prepend the IV to the ciphertext
+        byte[] output = new byte[initializationVector.length + cipherText.length];
+        System.arraycopy(initializationVector, 0, output, 0, initializationVector.length);
+        System.arraycopy(cipherText, 0, output, initializationVector.length, cipherText.length);
+
+        return output;
     }
 
-    private String receive() throws NoSuchAlgorithmException, RemoteException {
-        byte[] u = null;
+    private String decrypt(byte[] input) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
+        // Create an instance of the Cipher class
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+
+        // Extract the initialization vector from the input
+        byte[] initializationVector = Arrays.copyOfRange(input, 0, 16);
+
+        // Extract the actual cipher text from the input
+        byte[] cipherText = Arrays.copyOfRange(input, 16, input.length);
+
+        // Initialize the cipher for decryption
+        cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(initializationVector));
+
+        // Decrypt the cipher text
+        byte[] decryptedText = cipher.doFinal(cipherText);
+
+        // Convert the decrypted byte array back to a string
+        return new String(decryptedText);
+    }
+
+    private String receive() throws NoSuchAlgorithmException, RemoteException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+        byte[] cipherText = null;
         //get message from bulletin board (optionally null)
-        if(!ownTags.contains(tag))
-            u = server.get(id, tag);
+        cipherText = server.get(id, tag);
         //String u = server.get(5, "testTag47");
-        if(u == null)
+        if(cipherText == null)
             return null;
 
         //todo decryption
-
+        String u = decrypt(cipherText);
         //split message by unit seperator
         char unitSeperator = 0x1F;
         String[] split = u.split(String.valueOf(unitSeperator));
@@ -120,7 +139,7 @@ public class Client
         return split[0];
     }
 
-    private ArrayList<String> receiveAll() throws NoSuchAlgorithmException, RemoteException, InterruptedException {
+    private ArrayList<String> receiveAll() throws NoSuchAlgorithmException, RemoteException, InterruptedException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
         ArrayList<String> out = new ArrayList<>();
         String received;
         while ((received = receive()) != null) {
@@ -139,7 +158,7 @@ public class Client
     public void initialize() throws FileNotFoundException, NoSuchAlgorithmException {
         //todo read id and tag from file
         this.id = 9771448;
-        this.tag = "be58ba9a-4a97-41c8-9b5c-2fb11b14122b";
+        this.tag = "be58ba9a-4a97-41c8-9b5c-2fb11b14122b"; // uuid
         KeyGenerator keyGenerator = KeyGenerator.getInstance("AES"); //create key generator for AES
         keyGenerator.init(256); //make sure 256 key is used
         key = keyGenerator.generateKey(); //create secret
@@ -157,7 +176,8 @@ public class Client
                     String message = receive();
                     if(message != null)
                         System.out.println(message);
-                } catch (NoSuchAlgorithmException | RemoteException e) {
+                } catch (NoSuchAlgorithmException | RemoteException | InvalidAlgorithmParameterException |
+                         NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
                     e.printStackTrace();
                 }
                 try {
