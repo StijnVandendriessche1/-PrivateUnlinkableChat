@@ -4,6 +4,7 @@ import interfaces.BulletinBoard;
 
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
+import java.nio.ByteBuffer;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -15,9 +16,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.spec.KeySpec;
 
-public class Client
-{
+public class Client {
     private int id;
     private String tag;
 
@@ -25,20 +27,24 @@ public class Client
     private static Registry myRegistry;
     private static BulletinBoard server;
     private String nextTag;
+    private SecretKey originalKey;
     private SecretKey key;
 
-    public static void main(String[] args) throws MalformedURLException, NotBoundException, RemoteException, NoSuchAlgorithmException, FileNotFoundException, InterruptedException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+    private ArrayList<SecretKey> keys;
+
+    public static void main(String[] args) throws Exception {
         //setup client
         Client client = new Client();
+
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES"); //create key generator for AES
+        keyGenerator.init(256); //make sure 256 key is used
+        client.originalKey = keyGenerator.generateKey(); //save original key
+
         client.initialize(); //simulate touch by reading values from file
         //todo add salt to hash as expansion?
         client.md = MessageDigest.getInstance("SHA-512");
         myRegistry = LocateRegistry.getRegistry("localhost", 1099);
         server = (BulletinBoard) myRegistry.lookup("ChatService");
-
-        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES"); //create key generator for AES
-        keyGenerator.init(256); //make sure 256 key is used
-        client.key = keyGenerator.generateKey(); //create secret
 
         //client.run();
 
@@ -46,22 +52,25 @@ public class Client
         //
         //send 25 random messages (hello world1-25)
         client.send("Hallo dit is een test");
+        client.send("Dit is een test voor de kdf");
 
         //reset id and tag to initial values
         client.initialize();
 
         System.out.println(client.receive()); //receive 1 message
+        System.out.println(client.receive()); //receive 1 message
 
         //receive 25 messages
         new Thread(new Runnable() {
             @Override
-            public void run() {}
+            public void run() {
+            }
         }).start();
         System.out.println(client.receive());
 
     }
 
-    private void send(String message) throws NoSuchAlgorithmException, RemoteException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+    private void send(String message) throws Exception {
         //create new index and tag
         int newIndex = new Random().nextInt(Integer.MAX_VALUE); //the bounds of the max integer does not matter, since we use modulo to determine the index
         String newTag = UUID.randomUUID().toString(); //create UUID tag (unique random string)
@@ -81,9 +90,11 @@ public class Client
         //update id and tag
         id = newIndex;
         tag = newTag;
+        keys.add(key);
+        updateKeyWithKDF();
     }
 
-    private byte[] encrypt(String u) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
+    private byte[] encrypt(String u) throws Exception {
         // Create an instance of the Cipher class
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 
@@ -104,7 +115,7 @@ public class Client
         return output;
     }
 
-    private String decrypt(byte[] input) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
+    private String decrypt(byte[] input) throws Exception {
         // Create an instance of the Cipher class
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 
@@ -121,15 +132,45 @@ public class Client
         byte[] decryptedText = cipher.doFinal(cipherText);
 
         // Convert the decrypted byte array back to a string
+
         return new String(decryptedText);
     }
 
-    private String receive() throws NoSuchAlgorithmException, RemoteException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+    public void updateKeyWithKDF() throws Exception {
+        // Convert the SecretKey to a byte array
+        byte[] password = this.key.getEncoded();
+
+        // Convert the id to a byte array
+        byte[] idBytes = ByteBuffer.allocate(4).putInt(this.id).array();
+
+        // Concatenate the key byte array and the id byte array
+        byte[] passwordWithId = new byte[password.length + idBytes.length];
+        System.arraycopy(password, 0, passwordWithId, 0, password.length);
+        System.arraycopy(idBytes, 0, passwordWithId, password.length, idBytes.length);
+
+        // Use the concatenated byte array as the password for the KDF
+        KeySpec spec = new PBEKeySpec(Arrays.toString(passwordWithId).toCharArray(), new byte[16], 65536, 256);
+
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        javax.crypto.SecretKey derivedKey = factory.generateSecret(spec);
+        byte[] derivedKeyEncoded = derivedKey.getEncoded();
+
+        // Clear the password array for security
+        Arrays.fill(passwordWithId, (byte) 0);
+
+        // Update the SecretKey with the derived key
+        this.key = new javax.crypto.spec.SecretKeySpec(derivedKeyEncoded, "AES");
+
+        // Increment the id
+        this.id++;
+    }
+
+    private String receive() throws Exception {
         byte[] cipherText = null;
         //get message from bulletin board (optionally null)
         cipherText = server.get(id, tag);
         //String u = server.get(5, "testTag47");
-        if(cipherText == null)
+        if (cipherText == null)
             return null;
 
         //todo decryption
@@ -141,10 +182,13 @@ public class Client
         //update tag and id and return message
         id = Integer.parseInt(split[1]);
         tag = split[2];
+
+        updateKeyWithKDF();
+
         return split[0];
     }
 
-    private ArrayList<String> receiveAll() throws NoSuchAlgorithmException, RemoteException, InterruptedException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+    private ArrayList<String> receiveAll() throws Exception {
         ArrayList<String> out = new ArrayList<>();
         String received;
         while ((received = receive()) != null) {
@@ -156,7 +200,7 @@ public class Client
     /**
      * todo implement
      */
-    public static void getNextMessage(){
+    public static void getNextMessage() {
 
     }
 
@@ -164,23 +208,26 @@ public class Client
         //todo read id and tag from file
         this.id = 9771448;
         this.tag = "be58ba9a-4a97-41c8-9b5c-2fb11b14122b"; // uuid
+        this.key = originalKey;
+        this.keys = new ArrayList<>();
     }
 
     //TODO make this not overload the server
     //check for messages every 100ms
-    private void checkForMessages()
-    {
+    private void checkForMessages() {
         //make thread that checks for messages
         new Thread(() -> {
-            while (true)
-            {
+            while (true) {
                 try {
                     String message = receive();
-                    if(message != null)
+                    if (message != null)
                         System.out.println(message);
                 } catch (NoSuchAlgorithmException | RemoteException | InvalidAlgorithmParameterException |
-                         NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
+                         NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException |
+                         InvalidKeyException e) {
                     e.printStackTrace();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
                 try {
                     Thread.sleep(100);
@@ -191,18 +238,16 @@ public class Client
         }).start();
     }
 
-    private void run() throws NoSuchAlgorithmException, RemoteException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+    private void run() throws Exception {
         //make loop that waits for userinput and sends it
         checkForMessages();
         Scanner scanner = new Scanner(System.in);
-        while (true)
-        {
+        while (true) {
             send(scanner.nextLine());
         }
     }
 
-    private static String getHexString(byte[] bytes)
-    {
+    private static String getHexString(byte[] bytes) {
         String hexString = "";
         for (byte b : bytes) {
             hexString += String.format("%02x", b);

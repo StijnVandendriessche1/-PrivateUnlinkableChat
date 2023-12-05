@@ -5,7 +5,6 @@ import java.rmi.server.UnicastRemoteObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
-import java.util.Optional;
 
 public class BulletinBoardImpl extends UnicastRemoteObject implements interfaces.BulletinBoard
 {
