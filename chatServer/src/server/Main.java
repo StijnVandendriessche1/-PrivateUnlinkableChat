@@ -9,7 +9,7 @@ public class Main
 {
     public static void main(String[] args) throws AlreadyBoundException, RemoteException {
         Registry registry = LocateRegistry.createRegistry(1099);
-        registry.bind("ChatService", new BulletinBoardImpl());
+        registry.bind("ChatService", new src.main.java.server.BulletinBoardImpl());
         System.out.println("system is ready");
     }
 }

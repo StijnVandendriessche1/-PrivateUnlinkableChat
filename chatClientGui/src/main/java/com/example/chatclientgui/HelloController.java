@@ -1,5 +1,6 @@
 package com.example.chatclientgui;
 
+import interfaces.BulletinBoard;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -17,11 +18,23 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
+import javax.crypto.*;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
 import java.io.*;
 import java.net.Socket;
 import java.net.URL;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.nio.ByteBuffer;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.KeySpec;
+import java.util.*;
 
 public class HelloController implements Initializable
 {
@@ -40,23 +53,59 @@ public class HelloController implements Initializable
 
     @FXML
     ScrollPane spMain;
-
-    //Socket declaration
-    private Socket socket;
-    private BufferedReader bufferedReader;
-    private BufferedWriter bufferedWriter;
     private String username;
+
+    private int id;
+    private String tag;
+
+    private MessageDigest md;
+    private static Registry myRegistry;
+    private static BulletinBoard server;
+    private ArrayList<String> ownTags = new ArrayList<>();
+    private SecretKey originalKey;
+    private SecretKey key;
 
     //initialize of whole client
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle)
     {
-        this.username = getUsername(); //get username from TextInputDialog
-        this.lblTitle.setText("SocketChat - " + this.username);
-        initConnection(); //create connection with server
-        initStyle(); //setup the style of the gui
-        listenForMessage(vboxMessages); //listen for messages
-        initButtonAction(vboxMessages); //setup handle for button send
+        try
+        {
+            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES"); //create key generator for AES
+            keyGenerator.init(256); //make sure 256 key is used
+            key = keyGenerator.generateKey(); //save original key
+            this.username = getUsername(); //get username from TextInputDialog
+            //this.lblTitle.setText("SocketChat - " + this.username);
+            initStyle(); //setup the style of the gui
+            bump();
+            md = MessageDigest.getInstance("SHA-512");
+            myRegistry = LocateRegistry.getRegistry("localhost", 1099);
+            server = (BulletinBoard) myRegistry.lookup("ChatService");
+            receiveAll(); //receive all messages
+            listenForMessage(vboxMessages); //listen for messages
+            initButtonAction(vboxMessages); //setup handle for button send
+        }
+        catch (FileNotFoundException e)
+        {
+            throw new RuntimeException(e);
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            throw new RuntimeException(e);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        } catch (NotBoundException e) {
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void bump() throws FileNotFoundException {
+        //read id and tag from file
+        Scanner scanner = new Scanner(new File("src/main/java/com/example/chatclientgui/initval"));
+        id = scanner.nextInt();
+        tag = scanner.next();
     }
 
     private void initButtonAction(VBox vBox)
@@ -68,7 +117,11 @@ public class HelloController implements Initializable
                 if(!msgToSend.isEmpty())
                 {
                     addMessage(msgToSend, MessageType.OUT, vBox);
-                    sendMessage(msgToSend);
+                    try {
+                        sendMessage(msgToSend);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                     tfMessage.clear();
                 }
             }
@@ -154,83 +207,96 @@ public class HelloController implements Initializable
         });
     }
 
-    //Server Connection part
-    public void initConnection()
-    {
-        try
-        {
-            Socket socket = new Socket("localhost", 1234);
-            this.socket = socket;
-            this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            sendMessage(this.username);
-        }
-        catch (IOException e)
-        {
-            closeEverything(socket, bufferedReader, bufferedWriter);
-        }
-    }
+    public void sendMessage(String message) throws Exception {
+        //create new index and tag
+        int newIndex = new Random().nextInt(Integer.MAX_VALUE); //the bounds of the max integer does not matter, since we use modulo to determine the index
+        String newTag = UUID.randomUUID().toString(); //create UUID tag (unique random string)
 
-    public void sendMessage(String message)
-    {
-        try
-        {
-            bufferedWriter.write(message);
-            bufferedWriter.newLine();
-            bufferedWriter.flush();
-        }
-        catch (IOException e)
-        {
-            closeEverything(socket, bufferedReader, bufferedWriter);
-        }
+        //hash the current tag
+        md.update(tag.getBytes());
+        String tagHash = getHexString(md.digest());
+
+        //add message, newIndex and newTag to a string, seperated by unit seperator
+        char unitSeperator = 0x1F;
+        String u = message + unitSeperator + newIndex + unitSeperator + newTag;
+        byte[] ciphertext = encrypt(u);
+
+        //add message to bulletin board
+        server.add(id, ciphertext, tagHash);
+
+        //update id and tag
+        id = newIndex;
+        tag = newTag;
+        updateKeyWithKDF();
     }
 
     public void listenForMessage(VBox vbox)
     {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (socket.isConnected())
-                {
-                    try
-                    {
-                        String messageIn;
-                        messageIn = bufferedReader.readLine();
-                        addMessage(messageIn, serverCheck(messageIn), vbox);
-                    }catch (IOException e)
-                    {
-                        closeEverything(socket, bufferedReader, bufferedWriter);
-                        break;
-                    }
+        //make thread that checks for messages
+        new Thread(() -> {
+            while (true) {
+                try {
+                    String message = receive();
+                    if (message != null)
+                        System.out.println(message);
+                } catch (NoSuchAlgorithmException | RemoteException | InvalidAlgorithmParameterException |
+                         NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException |
+                         InvalidKeyException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
         }).start();
     }
 
-    public void closeEverything(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter)
-    {
-        //addMessage("closing connection", MessageType.SERVER, vboxMessages);
-        System.out.println("connection lost, shutting down");
-        try
-        {
-            if(bufferedReader != null)
-            {
-                bufferedReader.close();
-            }
-            if(bufferedWriter != null)
-            {
-                bufferedWriter.close();
-            }
-            if(socket != null)
-            {
-                socket.close();
-            }
-            Platform.exit();
-            System.exit(0);
-        }catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+    private String receive() throws Exception {
+        byte[] cipherText = null;
+        //get message from bulletin board (optionally null)
+        cipherText = server.get(id, tag);
+        //String u = server.get(5, "testTag47");
+        if (cipherText == null)
+            return null;
+
+        //todo decryption
+        String u = decrypt(cipherText);
+        //split message by unit seperator
+        char unitSeperator = 0x1F;
+        String[] split = u.split(String.valueOf(unitSeperator));
+
+        //update tag and id and return message
+        id = Integer.parseInt(split[1]);
+        tag = split[2];
+
+        updateKeyWithKDF();
+
+        return split[0];
+    }
+
+    private String decrypt(byte[] input) throws Exception {
+        // Create an instance of the Cipher class
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+
+        // Extract the initialization vector from the input
+        byte[] initializationVector = Arrays.copyOfRange(input, 0, 16);
+
+        // Extract the actual cipher text from the input
+        byte[] cipherText = Arrays.copyOfRange(input, 16, input.length);
+
+        // Initialize the cipher for decryption
+        cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(initializationVector));
+
+        // Decrypt the cipher text
+        byte[] decryptedText = cipher.doFinal(cipherText);
+
+        // Convert the decrypted byte array back to a string
+
+        return new String(decryptedText);
     }
 
     public MessageType serverCheck(String message)
@@ -247,6 +313,73 @@ public class HelloController implements Initializable
         else
         {
             return MessageType.IN;
+        }
+    }
+
+    private byte[] encrypt(String u) throws Exception {
+        // Create an instance of the Cipher class
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+
+        // Initialize the cipher for encryption
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+
+        // Encrypt the text
+        byte[] cipherText = cipher.doFinal(u.getBytes());
+
+        // Get the initialization vector
+        byte[] initializationVector = cipher.getIV();
+
+        // Prepend the IV to the ciphertext
+        byte[] output = new byte[initializationVector.length + cipherText.length];
+        System.arraycopy(initializationVector, 0, output, 0, initializationVector.length);
+        System.arraycopy(cipherText, 0, output, initializationVector.length, cipherText.length);
+
+        return output;
+    }
+
+    private static String getHexString(byte[] bytes)
+    {
+        String hexString = "";
+        for (byte b : bytes) {
+            hexString += String.format("%02x", b);
+        }
+        return hexString;
+    }
+
+    public void updateKeyWithKDF() throws Exception {
+        // Convert the SecretKey to a byte array
+        byte[] password = this.key.getEncoded();
+
+        // Convert the id to a byte array
+        byte[] idBytes = ByteBuffer.allocate(4).putInt(this.id).array();
+
+        // Concatenate the key byte array and the id byte array
+        byte[] passwordWithId = new byte[password.length + idBytes.length];
+        System.arraycopy(password, 0, passwordWithId, 0, password.length);
+        System.arraycopy(idBytes, 0, passwordWithId, password.length, idBytes.length);
+
+        // Use the concatenated byte array as the password for the KDF
+        KeySpec spec = new PBEKeySpec(Arrays.toString(passwordWithId).toCharArray(), new byte[16], 65536, 256);
+
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        javax.crypto.SecretKey derivedKey = factory.generateSecret(spec);
+        byte[] derivedKeyEncoded = derivedKey.getEncoded();
+
+        // Clear the password array for security
+        Arrays.fill(passwordWithId, (byte) 0);
+
+        // Update the SecretKey with the derived key
+        this.key = new javax.crypto.spec.SecretKeySpec(derivedKeyEncoded, "AES");
+
+        // Increment the id
+        this.id++;
+    }
+
+    private void receiveAll() throws Exception {
+        String received;
+        while ((received = receive()) != null)
+        {
+            addMessage(received, serverCheck(received), vboxMessages);
         }
     }
 }

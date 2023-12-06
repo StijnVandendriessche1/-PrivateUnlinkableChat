@@ -5,9 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cd18ca78-5f50-456c-ad7b-629c94f28812" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/consoleClient/initval" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../chatClientGui/src/main/java/com/example/chatclientgui/initval" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../chatClientGui/src/main/java/interfaces/BulletinBoard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/-PrivateUnlinkableChat.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/-PrivateUnlinkableChat.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chatClientGui/src/main/java/com/example/chatclientgui/HelloController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chatClientGui/src/main/java/com/example/chatclientgui/HelloController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chatClientGui/src/main/java/module-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chatClientGui/src/main/java/module-info.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/consolClient/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/consoleClient/Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/consoleClient/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/consoleClient/Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/BulletinBoard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/BulletinBoard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/BulletinBoardImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/BulletinBoardImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/Main.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,7 +58,7 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RunManager" selected="Application.Client">
+  <component name="RunManager" selected="Application.server.Main">
     <configuration name="BulletinBoardImpl" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="server.BulletinBoardImpl" />
       <module name="chatServer" />
@@ -124,8 +133,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.Client" />
         <item itemvalue="Application.server.Main" />
+        <item itemvalue="Application.Client" />
         <item itemvalue="Application.BulletinBoardImpl" />
         <item itemvalue="Application.Main" />
       </list>
@@ -145,7 +154,11 @@
       <workItem from="1700399380455" duration="12547000" />
       <workItem from="1700415654884" duration="127000" />
       <workItem from="1700423517685" duration="1630000" />
-      <workItem from="1700425164913" duration="858000" />
+      <workItem from="1700425164913" duration="1336000" />
+      <workItem from="1701005106275" duration="39000" />
+      <workItem from="1701012707280" duration="698000" />
+      <workItem from="1701256574545" duration="47000" />
+      <workItem from="1701869274568" duration="2904000" />
     </task>
     <servers />
   </component>
