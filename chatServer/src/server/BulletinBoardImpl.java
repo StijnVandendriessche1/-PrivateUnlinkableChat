@@ -1,4 +1,4 @@
-package src.main.java.server;
+package server;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -29,8 +29,9 @@ public class BulletinBoardImpl extends UnicastRemoteObject implements interfaces
         MessageDigest md = MessageDigest.getInstance("SHA-512");
         md.update(b.getBytes());
         String t = getHexString(md.digest());
-        //System.out.println("Message retrieved from cell " + i + " with tag " + t);
-        return BulletinBoardImpl.cells[i % n].get(t);
+        byte[] message = BulletinBoardImpl.cells[i % n].get(t);
+        BulletinBoardImpl.cells[i % n].remove(t);
+        return message;
     }
 
     private static String getHexString(byte[] bytes)
