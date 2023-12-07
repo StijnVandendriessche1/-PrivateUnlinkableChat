@@ -21,6 +21,7 @@ public class BulletinBoardImpl extends UnicastRemoteObject implements interfaces
     public void add(int i, byte[] v, String t) throws RemoteException
     {
         BulletinBoardImpl.cells[i % n].put(t, v);
+        System.out.println("Message added to cell " + i + " with tag " + t);
     }
 
     @Override
@@ -28,6 +29,7 @@ public class BulletinBoardImpl extends UnicastRemoteObject implements interfaces
         MessageDigest md = MessageDigest.getInstance("SHA-512");
         md.update(b.getBytes());
         String t = getHexString(md.digest());
+        //System.out.println("Message retrieved from cell " + i + " with tag " + t);
         return BulletinBoardImpl.cells[i % n].get(t);
     }
 

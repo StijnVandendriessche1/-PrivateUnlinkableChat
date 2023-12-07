@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/-PrivateUnlinkableChat.iml" filepath="$PROJECT_DIR$/.idea/-PrivateUnlinkableChat.iml" />
-      <module fileurl="file://$PROJECT_DIR$/chatClientGui/chatClientGui.iml" filepath="$PROJECT_DIR$/chatClientGui/chatClientGui.iml" />
     </modules>
   </component>
 </project>

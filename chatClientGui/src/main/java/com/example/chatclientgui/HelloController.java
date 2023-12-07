@@ -21,10 +21,14 @@ import javafx.scene.text.TextFlow;
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -35,6 +39,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.KeySpec;
 import java.util.*;
+
 
 public class HelloController implements Initializable
 {
@@ -56,14 +61,16 @@ public class HelloController implements Initializable
     private String username;
 
     private int id;
+    private int idCopy;
     private String tag;
+    private String tagCopy;
 
     private MessageDigest md;
     private static Registry myRegistry;
     private static BulletinBoard server;
     private ArrayList<String> ownTags = new ArrayList<>();
-    private SecretKey originalKey;
     private SecretKey key;
+    private SecretKey keyCopy;
 
     //initialize of whole client
     @Override
@@ -71,9 +78,18 @@ public class HelloController implements Initializable
     {
         try
         {
-            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES"); //create key generator for AES
-            keyGenerator.init(256); //make sure 256 key is used
-            key = keyGenerator.generateKey(); //save original key
+            //KeyGenerator keyGenerator = KeyGenerator.getInstance("AES"); //create key generator for AES
+            //keyGenerator.init(256); //make sure 256 key is used
+            //key = keyGenerator.generateKey(); //save original key
+
+            Path path = Paths.get("src/main/java/com/example/chatclientgui/keyfile.key");
+            byte[] keyBytes = Files.readAllBytes(path);
+            key = new SecretKeySpec(keyBytes, "AES");
+            keyCopy = new SecretKeySpec(keyBytes, "AES");
+
+            //byte[] keyBytes = key.getEncoded();
+            //Path path = Paths.get("src/main/java/com/example/chatclientgui/keyfile.key");
+            //Files.write(path, keyBytes);
             this.username = getUsername(); //get username from TextInputDialog
             //this.lblTitle.setText("SocketChat - " + this.username);
             initStyle(); //setup the style of the gui
@@ -219,7 +235,7 @@ public class HelloController implements Initializable
         //add message, newIndex and newTag to a string, seperated by unit seperator
         char unitSeperator = 0x1F;
         String u = message + unitSeperator + newIndex + unitSeperator + newTag;
-        byte[] ciphertext = encrypt(u);
+        byte[] ciphertext = encrypt(u, false);
 
         //add message to bulletin board
         server.add(id, ciphertext, tagHash);
@@ -227,7 +243,7 @@ public class HelloController implements Initializable
         //update id and tag
         id = newIndex;
         tag = newTag;
-        updateKeyWithKDF();
+        updateKeyWithKDF(false);
     }
 
     public void listenForMessage(VBox vbox)
@@ -236,9 +252,10 @@ public class HelloController implements Initializable
         new Thread(() -> {
             while (true) {
                 try {
-                    String message = receive();
-                    if (message != null)
-                        System.out.println(message);
+                    //String message = receive();
+                    receiveAll();
+                    //if (message != null)
+                        //System.out.println(message);
                 } catch (NoSuchAlgorithmException | RemoteException | InvalidAlgorithmParameterException |
                          NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException |
                          InvalidKeyException e) {
@@ -247,7 +264,7 @@ public class HelloController implements Initializable
                     throw new RuntimeException(e);
                 }
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -264,7 +281,7 @@ public class HelloController implements Initializable
             return null;
 
         //todo decryption
-        String u = decrypt(cipherText);
+        String u = decrypt(cipherText, true);
         //split message by unit seperator
         char unitSeperator = 0x1F;
         String[] split = u.split(String.valueOf(unitSeperator));
@@ -273,12 +290,14 @@ public class HelloController implements Initializable
         id = Integer.parseInt(split[1]);
         tag = split[2];
 
-        updateKeyWithKDF();
+        if (split[0].equals(""))
+            return split[0];
 
+        updateKeyWithKDF(true);
         return split[0];
     }
 
-    private String decrypt(byte[] input) throws Exception {
+    private String decrypt(byte[] input, boolean copy) throws Exception {
         // Create an instance of the Cipher class
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 
@@ -289,7 +308,7 @@ public class HelloController implements Initializable
         byte[] cipherText = Arrays.copyOfRange(input, 16, input.length);
 
         // Initialize the cipher for decryption
-        cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(initializationVector));
+        cipher.init(Cipher.DECRYPT_MODE, keyCopy, new IvParameterSpec(initializationVector));
 
         // Decrypt the cipher text
         byte[] decryptedText = cipher.doFinal(cipherText);
@@ -316,7 +335,7 @@ public class HelloController implements Initializable
         }
     }
 
-    private byte[] encrypt(String u) throws Exception {
+    private byte[] encrypt(String u, boolean copy) throws Exception {
         // Create an instance of the Cipher class
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 
@@ -346,9 +365,11 @@ public class HelloController implements Initializable
         return hexString;
     }
 
-    public void updateKeyWithKDF() throws Exception {
+    public void updateKeyWithKDF(boolean copy) throws Exception {
         // Convert the SecretKey to a byte array
-        byte[] password = this.key.getEncoded();
+        byte[] password;
+        if (copy) password = this.keyCopy.getEncoded();
+        else password = this.key.getEncoded();
 
         // Convert the id to a byte array
         byte[] idBytes = ByteBuffer.allocate(4).putInt(this.id).array();
@@ -369,7 +390,8 @@ public class HelloController implements Initializable
         Arrays.fill(passwordWithId, (byte) 0);
 
         // Update the SecretKey with the derived key
-        this.key = new javax.crypto.spec.SecretKeySpec(derivedKeyEncoded, "AES");
+        if (copy) this.keyCopy = new javax.crypto.spec.SecretKeySpec(derivedKeyEncoded, "AES");
+        else this.key = new javax.crypto.spec.SecretKeySpec(derivedKeyEncoded, "AES");
 
         // Increment the id
         this.id++;
