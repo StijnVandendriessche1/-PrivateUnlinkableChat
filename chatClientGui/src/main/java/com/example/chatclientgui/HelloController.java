@@ -260,7 +260,6 @@ public class HelloController implements Initializable
         if (cipherText == null)
             return null;
 
-        //todo decryption
         String u = decrypt(cipherText, true);
         //split message by unit seperator
         char unitSeperator = 0x1F;
