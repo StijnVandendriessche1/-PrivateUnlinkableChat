@@ -5,15 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cd18ca78-5f50-456c-ad7b-629c94f28812" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../chatClientGui/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../chatClientGui/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../chatClientGui/src/main/java/com/example/chatclientgui/HelloApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chatClientGui/src/main/java/com/example/chatclientgui/HelloApplication.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../chatClientGui/src/main/java/com/example/chatclientgui/HelloController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chatClientGui/src/main/java/com/example/chatclientgui/HelloController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chatClientGui/src/main/resources/com/example/chatclientgui/hello-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/../chatClientGui/src/main/resources/com/example/chatclientgui/hello-view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chatClientGui/target/classes/com/example/chatclientgui/hello-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/../chatClientGui/target/classes/com/example/chatclientgui/hello-view.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/consoleClient/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/consoleClient/Client.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/BulletinBoardImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/BulletinBoardImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/consoleClient/Client.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/consoleClient/initval" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,25 +39,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.server.Main.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "aspect.path.notification.shown": "true",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/dries/dev/kul/kul-2324/-PrivateUnlinkableChat/chatServer",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.server.Main.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;aspect.path.notification.shown&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/dries/dev/kul/kul-2324/-PrivateUnlinkableChat/chatServer&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="Application.server.Main">
     <configuration name="BulletinBoardImpl" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="server.BulletinBoardImpl" />
@@ -167,6 +167,7 @@
       <workItem from="1701256574545" duration="47000" />
       <workItem from="1701869274568" duration="2904000" />
       <workItem from="1701973809161" duration="3287000" />
+      <workItem from="1702131417696" duration="1874000" />
     </task>
     <servers />
   </component>

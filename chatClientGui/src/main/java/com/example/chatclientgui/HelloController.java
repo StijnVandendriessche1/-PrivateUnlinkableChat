@@ -87,11 +87,6 @@ public class HelloController implements Initializable
             key = new SecretKeySpec(keyBytes, "AES");
             keyCopy = new SecretKeySpec(keyBytes, "AES");
 
-            //byte[] keyBytes = key.getEncoded();
-            //Path path = Paths.get("src/main/java/com/example/chatclientgui/keyfile.key");
-            //Files.write(path, keyBytes);
-            this.username = getUsername(); //get username from TextInputDialog
-            //this.lblTitle.setText("SocketChat - " + this.username);
             initStyle(); //setup the style of the gui
             bump();
             md = MessageDigest.getInstance("SHA-512");
@@ -185,21 +180,6 @@ public class HelloController implements Initializable
         });
     }
 
-    public String getUsername()
-    {
-        TextInputDialog textInputDialog = new TextInputDialog();
-        textInputDialog.setTitle("SocketChat username");
-        textInputDialog.setHeaderText("Enter your username: ");
-        textInputDialog.setContentText("Username: ");
-        Optional<String> res;
-        do
-        {
-            res = textInputDialog.showAndWait();
-        }
-        while (textInputDialog.getEditor().getText() == null || textInputDialog.getEditor().getText().length() == 0);
-        return textInputDialog.getEditor().getText();
-    }
-
     public void initStyle()
     {
         buttonSend.setStyle("-fx-background-color: linear-gradient(#f2f2f2, #d6d6d6), " +
@@ -264,7 +244,7 @@ public class HelloController implements Initializable
                     throw new RuntimeException(e);
                 }
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
